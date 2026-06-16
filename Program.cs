@@ -9,7 +9,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? "Data Source=todo.db";
 
 builder.Services.AddDbContext<TodoContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseNpgsql(connectionString));
 
 // Configure Identity Core with Entity Framework stores
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
