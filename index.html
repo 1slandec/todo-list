@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo List</title>
+    <link rel="stylesheet" href="/wwwroot/css/site.css">
+</head>
+<body>
+
+    <!-- SECTION 1: Auth Screen (Login / Register) -->
+    <div id="auth-section" class="auth-wrapper">
+        <div class="auth-card" id="login-container">
+            <div class="auth-header">
+                <h1 class="auth-title">Вход в систему</h1>
+                <p class="auth-subtitle">Войдите, чтобы получить доступ к списку дел</p>
+            </div>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label" for="login-email">Электронная почта</label>
+                    <input type="email" id="login-email" class="input-field" placeholder="example@gmail.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="login-password">Пароль</label>
+                    <input type="password" id="login-password" class="input-field" placeholder="••••••••" required>
+                </div>
+                
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary w-full" style="width: 100%; height: 2.75rem;">
+                        <span id="login-btn-text">Войти</span>
+                    </button>
+                </div>
+            </form>
+            
+            <div style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                Нет аккаунта? <button class="btn-link" id="switch-to-register">Регистрация</button>
+            </div>
+        </div>
+
+        <div class="auth-card hidden" id="register-container">
+            <div class="auth-header">
+                <h1 class="auth-title">Регистрация</h1>
+                <p class="auth-subtitle">Создайте новый аккаунт в системе</p>
+            </div>
+            
+            <form id="register-form">
+                <div class="form-group">
+                    <label class="form-label" for="register-email">Электронная почта</label>
+                    <input type="email" id="register-email" class="input-field" placeholder="example@gmail.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="register-password">Пароль</label>
+                    <input type="password" id="register-password" class="input-field" placeholder="Не менее 6 символов, цифры, буквы" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="register-confirm-password">Подтверждение пароля</label>
+                    <input type="password" id="register-confirm-password" class="input-field" placeholder="••••••••" required>
+                </div>
+                
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-success" style="width: 100%; height: 2.75rem;">
+                        <span id="register-btn-text">Зарегистрироваться</span>
+                    </button>
+                </div>
+            </form>
+            
+            <div style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                Уже зарегистрированы? <button class="btn-link" id="switch-to-login">Войти</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- SECTION 2: Dashboard (Visible when Authenticated) -->
+    <div id="dashboard-section" class="dashboard-container hidden">
+        <header class="dashboard-header">
+            <div>
+                <h1 style="font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em; color: var(--text-primary);">
+                    Панель задач
+                </h1>
+                <p style="font-size: 0.875rem; color: var(--text-secondary);">Управляйте делами и категориями в реальном времени</p>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-email" id="current-user-display">user@example.com</div>
+                <button class="btn-logout" id="logout-button">Выйти</button>
+            </div>
+        </header>
+
+        <!-- Stats Overview Row -->
+        <div class="stats-banner">
+            <div class="stat-card">
+                <div class="stat-label">Всего задач</div>
+                <div class="stat-value" id="stats-total-count">0</div>
+            </div>
+            <div class="stat-card" style="border-left: 3px solid var(--warning);">
+                <div class="stat-label">В процессе</div>
+                <div class="stat-value" id="stats-pending-count" style="color: var(--warning);">0</div>
+            </div>
+            <div class="stat-card" style="border-left: 3px solid var(--success);">
+                <div class="stat-label">Выполненные</div>
+                <div class="stat-value" id="stats-completed-count" style="color: var(--success);">0</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Sidebar: Categories Management -->
+            <aside class="glass-panel" style="height: fit-content;">
+                <h2 class="section-title">Категории</h2>
+                
+                <!-- Categories list container -->
+                <div class="categories-list" id="category-items-container">
+                    <!-- Loaded dynamically via Category API -->
+                    <div class="empty-state" style="padding: 1rem; font-size: 0.85rem;">Загрузка категорий...</div>
+                </div>
+
+                <!-- Add Category Form -->
+                <form id="create-category-form" style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label class="form-label" for="new-category-title">Новая категория</label>
+                        <input type="text" id="new-category-title" class="input-field" placeholder="Например: Работа" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 0.875rem; padding: 0.5rem;">
+                        Добавить категорию
+                    </button>
+                </form>
+            </aside>
+
+            <!-- Main Content: Todo Tasks CRUD, Filter & Stats -->
+            <main>
+                <!-- Quick Filter Tabs Row -->
+                <div style="background-color: var(--neutral-gray); padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                        Фильтрация задач
+                    </div>
+                    
+                    <!-- Filters by status -->
+                    <div class="filter-tabs" id="status-filter-row">
+                        <button class="filter-tab active" data-status="all">Все задачи</button>
+                        <button class="filter-tab" data-status="pending">В процессе</button>
+                        <button class="filter-tab" data-status="completed">Выполненные</button>
+                    </div>
+
+                    <!-- Filters by categories -->
+                    <div style="font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                        По категории:
+                    </div>
+                    <div class="filter-tabs" id="category-filter-row">
+                        <button class="filter-tab active" data-category-id="all">Все</button>
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Add Task Full Bar Form -->
+                <div class="glass-panel" style="margin-bottom: 1.5rem; padding: 1.25rem;">
+                    <form id="create-todo-form" class="todo-input-bar">
+                        <input type="text" id="new-todo-name" class="input-field" placeholder="Что нужно сделать?" required>
+                        
+                        <select id="new-todo-category" class="input-field" style="max-width: 180px;">
+                            <option value="">Без категории</option>
+                            <!-- Category list loaded dynamically -->
+                        </select>
+                        
+                        <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+                            Добавить дело
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tasks List Card -->
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <div class="section-title">
+                        <span>Список дел</span>
+                        <span style="font-size: 0.875rem; font-weight: 400; color: var(--text-secondary);" id="tasks-count-badge">
+                            Загрузка...
+                        </span>
+                    </div>
+
+                    <!-- Tasks List Container -->
+                    <div class="todo-list-wrapper" id="todo-items-container">
+                        <!-- Loaded dynamically via TodoItem API -->
+                        <div class="empty-state">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+                            <p>Загрузка списка задач...</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <!-- SECTION 3: Edit Task Modal Dialog -->
+    <div id="edit-modal-overlay" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title">Редактировать дело</h3>
+            
+            <form id="edit-todo-form">
+                <input type="hidden" id="edit-todo-id">
+                <input type="hidden" id="edit-todo-userId">
+                <div class="form-group">
+                    <label class="form-label" for="edit-todo-name">Наименование задачи</label>
+                    <input type="text" id="edit-todo-name" class="input-field" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="edit-todo-category">Категория</label>
+                    <select id="edit-todo-category" class="input-field">
+                        <option value="">Без категории</option>
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+                
+                <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0;">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="edit-todo-status">
+                        <span class="checkmark"></span>
+                    </label>
+                    <label for="edit-todo-status" style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; margin-left: 0.5rem;">
+                        Задача выполнена
+                    </label>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="close-modal-button">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- SECTION 4: Temporary Toast Toast notifications -->
+    <div id="toast-wrapper" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 10000; pointer-events: none;"></div>
+
+    <script src="/wwwroot/js/site.js"></script>
+</body>
+</html>

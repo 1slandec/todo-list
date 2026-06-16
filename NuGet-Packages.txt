@@ -1,0 +1,15 @@
+Для работы проекта необходимо установить следующие NuGet-пакеты в ASP.NET Core 8.0 проекте:
+
+1. Microsoft.EntityFrameworkCore.Sqlite (8.0.x) — для поддержки работы с локальной базой данных SQLite.
+2. Microsoft.EntityFrameworkCore.Design (8.0.x) — поддержка инструментов проектирования EF.
+3. Microsoft.AspNetCore.Identity.EntityFrameworkCore (8.0.x) — поддержка аутентификации и авторизации Microsoft Identity на базе Entity Framework Core.
+
+Вы можете установить их через консоль диспетчера пакетов (Package Manager Console):
+Install-Package Microsoft.EntityFrameworkCore.Sqlite
+Install-Package Microsoft.EntityFrameworkCore.Design
+Install-Package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+
+Или через .NET CLI:
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+dotnet add package Microsoft.EntityFrameworkCore.Design
+dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
