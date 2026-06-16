@@ -4,6 +4,10 @@ import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import pg from "pg";
 import dotenv from "dotenv";
+import dns from "dns";
+
+// Принудительно используем IPv4 вместо IPv6, так как Render не поддерживает исходящий IPv6 трафик по умолчанию
+dns.setDefaultResultOrder("ipv4first");
 
 dotenv.config();
 
